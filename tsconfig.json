@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "strict": true,
+  },
+  "include": [
+    "src",
+    "tests",
+    ".eslintrc.js",
+    "jest.config.js"
+  ]
+}

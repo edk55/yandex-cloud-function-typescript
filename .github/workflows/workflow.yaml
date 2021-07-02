@@ -1,0 +1,52 @@
+name: Yandex.Cloud Function CI/CD
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup node version
+        uses: actions/setup-node@v2
+        with:
+          node-version: "12"
+      - name: Install dependecies
+        run: npm ci
+      - name: Run test script
+        run: npm run test
+      - name: Run build script
+        run: npm run build
+      - name: Upload "dist" folder to arifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: function
+          path: dist/*
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: function
+      - name: Deploy to Yandex.Cloud
+        uses: goodsmileduck/yandex-serverless-action@v1
+        with:
+          token: ${{ secrets.YC_TOKEN }}
+          service_account: ${{ secrets.YC_SERVICE_ACCOUNT }}
+          function_id: ${{ secrets.YC_FUNCTION_ID }}
+          runtime: "nodejs12"
+          memory: "128"
+          entrypoint: "index.handler"
+          environment: DEBUG=True,COUNT=1
