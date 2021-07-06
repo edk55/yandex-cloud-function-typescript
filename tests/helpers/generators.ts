@@ -21,6 +21,15 @@ export const generateContext: GeneratorFn<IContext> = (overrides) => ({
 });
 
 export const generateEvent: GeneratorFn<IEvent> = (overrides) => ({
+  ...overrides,
+  multiValueQueryStringParameters: {
+    // fix because of DeepPartial
+    ...(overrides?.multiValueQueryStringParameters as Record<string, string[] | undefined>),
+  },
+  multiValueHeaders: {
+    // fix because of DeepPartial
+    ...(overrides?.multiValueHeaders as Record<string, string[] | undefined>),
+  },
   httpMethod: overrides?.httpMethod ?? 'GET',
   requestContext: {
     httpMethod: overrides?.httpMethod ?? 'GET',
